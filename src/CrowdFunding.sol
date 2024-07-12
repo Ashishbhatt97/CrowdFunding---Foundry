@@ -23,6 +23,11 @@ contract CrowdFunding {
     mapping(uint256 => Request) public requests;
     uint256 public numOfRequest;
 
+    modifier onlyManager() {
+        require(msg.sender == manager, "Only Manager can call this function");
+        _;
+    }
+
     constructor(uint256 _target, uint256 _deadline) {
         target = _target;
         deadline = block.timestamp + _deadline;
@@ -62,11 +67,7 @@ contract CrowdFunding {
         contributedMoney[msg.sender] = 0;
     }
 
-    modifier onlyManager() {
-        require(msg.sender == manager, "Only Manager can call this function");
-        _;
-    }
-
+    //Create Request Function
     function createRequest(
         string memory _description,
         address payable _recipient,
@@ -79,7 +80,7 @@ contract CrowdFunding {
         newRequest.completed = false;
         newRequest.noOfVoters = 0;
     }
-
+    //vote request function
     function voteRequest(uint256 _requestNumber) public {
         require(
             contributedMoney[msg.sender] > 0,
@@ -93,7 +94,7 @@ contract CrowdFunding {
         requestInstance.voters[msg.sender] == true;
         requestInstance.noOfVoters++;
     }
-
+    //make payment function
     function makePayment(uint256 _requestNumber) public onlyManager {
         require(raisedAmount > target, "Sorry, Payment cannot be initialized");
         Request storage requestInstance = requests[_requestNumber];
